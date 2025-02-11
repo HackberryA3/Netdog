@@ -26,17 +26,20 @@ jobs:
 
       - name: get version from tag
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
         run: |
-          echo "VERSION=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
+          echo "VERSION=$(git describe --tags --abbrev=0)" >> $env:GITHUB_ENV
 
       - name: get version from input
         if: github.event_name == 'workflow_dispatch'
+        shell: pwsh
         run: |
-          echo "VERSION=${{ github.event.inputs.release-version }}" >> $GITHUB_ENV
+          echo "VERSION=${{ github.event.inputs.release-version }}" >> $env:GITHUB_ENV
 
       - name: show version
+        shell: pwsh
         run: |
-          echo "env: $VERSION"
+          echo "env: $env:VERSION"
           echo "github env: ${{ env.VERSION }}"
 
       - name: create release
