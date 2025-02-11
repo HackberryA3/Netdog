@@ -1,0 +1,68 @@
+name: CD
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+      - 'v*.*.*-debug'
+  workflow_dispatch:
+    inputs:
+      release-version:
+        description: 'Release version'
+        required: true
+        default: 'v0.0.0-debug'
+
+jobs:
+  deploy:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: build
+        run: |
+          cmake -S . -B build
+          cmake --build build --config Release
+
+      - name: get version from tag
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+        run: |
+          echo ::set-env name=VERSION::$(git describe --tags --abbrev=0)
+
+      - name: get version from input
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          echo ::set-env name=VERSION::${{ github.event.inputs.release-version }}
+
+      - name: create release
+        id: create_release
+        uses: actions/create-release@v1.1.4
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.VERSION }}
+          release_name: Release ${{ env.VERSION }}
+          body: |
+            Release ${{ env.VERSION }}
+          draft: false
+          prerelease: ${{ endsWith(env.VERSION, '-debug') }}
+
+      - name: upload netdog.exe
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: build/Release/netdog.exe
+          asset_name: netdog.exe
+          asset_content_type: application/octet-stream
+
+      - name: upload nc.exe
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: build/Release/nc.exe
+          asset_name: nc.exe
+          asset_content_type: application/octet-stream
