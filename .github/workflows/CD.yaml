@@ -34,6 +34,11 @@ jobs:
         run: |
           echo "VERSION=${{ github.event.inputs.release-version }}" >> $GITHUB_ENV
 
+      - name: show version
+        run: |
+          echo "env: $VERSION"
+          echo "github env: ${{ env.VERSION }}"
+
       - name: create release
         id: create_release
         uses: actions/create-release@v1.1.4
