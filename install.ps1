@@ -1,9 +1,11 @@
 # Githubから最新のexeをダウンロードして、Program Filesに配置し、環境変数を設定する
 
+$ErrorActionPreference = "Stop"
+
 if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
-	$ScriptUrl = "https://raw.githubusercontent.com/HackberryA3/Netdog/releases/latest/download/install.ps1"
-	Start-Process powershell -ArgumentList "Invoke-WebRequest -Uri $ScriptUrl -UseBasicParsing | Invoke-Expression" -Verb RunAs -Wait
-	exit 0
+	$ScriptUrl = "https://github.com/HackberryA3/Netdog/releases/latest/download/install.ps1"
+	Start-Process powershell -ArgumentList "Invoke-WebRequest -Uri $ScriptUrl | Invoke-Expression" -Verb RunAs -Wait -WindowStyle Hidden
+	return 0
 }
 
 # ダウンロードするURL
@@ -27,8 +29,9 @@ Invoke-WebRequest -Uri $UrlUninstaller -OutFile $InstallPathUninstaller
 
 # 環境変数の設定
 # 既存のPathに追加する値が含まれていない場合のみ追加
+$ExistingPath = [System.Environment]::GetEnvironmentVariable("Path", [System.EnvironmentVariableTarget]::Machine)
 if (-not ($ExistingPath -split ";" -contains $InstallPath)) {
-    $UpdatedPath = ($ExistingPath -split ";" + $InstallPath) -join ";"
+    $UpdatedPath = (@($ExistingPath -split ";") + $InstallPath) -join ";"
     [System.Environment]::SetEnvironmentVariable("Path", $UpdatedPath, [System.EnvironmentVariableTarget]::Machine)
 }
 
