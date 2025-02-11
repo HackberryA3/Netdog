@@ -74,3 +74,23 @@ jobs:
           asset_path: build/Release/nc.exe
           asset_name: nc.exe
           asset_content_type: application/octet-stream
+
+      - name: upload install.ps1
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: install.ps1
+          asset_name: install.ps1
+          asset_content_type: application/octet-stream
+
+      - name: upload uninstall.ps1
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: uninstall.ps1
+          asset_name: uninstall.ps1
+          asset_content_type: application/octet-stream
