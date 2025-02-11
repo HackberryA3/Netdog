@@ -5,7 +5,7 @@ $ErrorActionPreference = "Stop"
 if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
 	$ScriptUrl = "https://github.com/HackberryA3/Netdog/releases/latest/download/install.ps1"
 	Start-Process powershell -ArgumentList "Invoke-WebRequest -Uri $ScriptUrl | Invoke-Expression" -Verb RunAs -Wait -WindowStyle Hidden
-	return 0
+	return
 }
 
 # ダウンロードするURL
